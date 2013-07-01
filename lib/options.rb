@@ -40,9 +40,9 @@ def parse_args(args)
     options = {}
     opts = OptionParser.new do |opts|
         opts.banner = USAGE
-        opts.on("--arch ARCH","-a","specify the architecture to use for platform" +
-                "specific files. Should specify always." +
-                "defaults to [#{$ARCH}]") do |o|
+        opts.on("--arch ARCH","-a","Specify the architecture to use for platform" +
+                "specific files. Should specify always. " +
+                "Defaults to [#{$ARCH}]") do |o|
             $ARCH = o
             options[:arch] = o
         end
@@ -76,8 +76,10 @@ def parse_args(args)
     opts.parse!(args)
 
     required_args = [:outdir, :fileprefix, :tlmaster]
-    if (options.keys & required_args) != required_args
+    if (options.keys & required_args).length != required_args.length
         $stderr.puts "ERROR: all required arguments were not provided"
+        miss = required_args - (options.keys & required_args)
+        $stderr.puts "   missing #{miss}"
         puts opts
         exit 2
     end

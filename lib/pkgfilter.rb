@@ -142,19 +142,19 @@ class PkgFilter
 		parts = str.split " "
 
 		case parts[0]
-		when "AddFormat":
+		when "AddFormat"
 			# Ignore
-		when "BuildFormat":
+		when "BuildFormat"
 			conf.formatHints << parts[1]
-		when "BuildLanguageDat":
+		when "BuildLanguageDat"
 			# Ignore
-		when "AddHyphen":
+		when "AddHyphen"
 			# Ignore
-		when "addKanjiMap":
+		when "addKanjiMap"
 			# Ignorer
-		when "addMap":
+		when "addMap"
 			conf.mapHints << parts[0] + " " + parts[1]
-		when "addMixedMap":
+		when "addMixedMap"
 			conf.mapHints << parts[0] + " " + parts[1]
 		else
 			printf "*warning: unknown execute statement:"
