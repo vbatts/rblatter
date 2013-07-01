@@ -73,6 +73,8 @@ def parse_args(args)
             options[:quiet] = false
         end
     end
+    opts.parse!(args)
+
     required_args = [:outdir, :fileprefix, :tlmaster]
     if (options.keys & required_args) != required_args
         $stderr.puts "ERROR: all required arguments were not provided"
