@@ -11,6 +11,8 @@
 # svn co -r {20130530} svn://tug.org/texlive/trunk/Master/tlpkg
 # You can then copy tlpkg/texlive.tlpdb to ${TARBALL_ROOT}/tlpkg/texlive.tlpdb
 
+set -e
+
 VERSION=20130530
 
 if [ "$1" = "" ]; then

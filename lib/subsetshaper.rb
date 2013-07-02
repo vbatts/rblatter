@@ -56,7 +56,7 @@ class SubsetShaper
 		@subsetConfigs = []
 		@again = true # Will need another pass?
 		eqns = EqnParser.new $EQN
-		for eqn in eqns.configs do
+		eqns.configs.each do |eqn|
 			@subsetConfigs << eqn
 		end
 
@@ -75,8 +75,8 @@ class SubsetShaper
 	# Start parsing and expanding subsets
 	def run
 		if File.exists? $OUTDIR then
-			puts "*error: #{$OUTDIR} exists"
-			puts "Remove/move, just do something!"
+			$stderr.puts "*error: #{$OUTDIR} exists"
+			$stderr.puts "Remove/move, just do something!"
 			exit 1
 		end
 
@@ -93,11 +93,9 @@ class SubsetShaper
 	# Create and populate subset outputs with toplevel depends
 	def writeInitialContents 
 
-		if !$QUIET then
-			puts "setting up subsets..."
-		end
+		puts "setting up subsets..." unless $QUIET
 
-		for subset in @subsetConfigs do
+		@subsetConfigs.each do |subset|
 
 			# Create file
 			outFile = "#{$TMPOUT}/" + subset.uniq.to_s + "-" +
@@ -119,16 +117,12 @@ class SubsetShaper
 	# Expand dependencies in a subset output file
 	def expandContents
 
-		if !$QUIET then
-			puts "expanding subsets..."
-		end
+		puts "expanding subsets..." unless $QUIET
 
-		for subset in @subsetConfigs do
+		@subsetConfigs.each do |subset|
 
 			name = subset.subsetName
-			if !$QUIET then
-				puts "expanding #{name}"
-			end
+			puts "expanding #{name}" unless $QUIET
 			@pass = 1
 
 			@again = true 
@@ -136,9 +130,7 @@ class SubsetShaper
 
 				@again = false
 
-				if !$QUIET then
-					print "pass #{@pass}: \n"
-				end
+				print "pass #{@pass}: \n" unless $QUIET
 
 				@spinner.rewind
 
@@ -152,7 +144,7 @@ class SubsetShaper
 					 "-" + name + "_#{@pass.next}",
 					 "w+")
 
-				for line in inHandle do
+				inHandle.each do |line|
 					expLine = expandLine line, subset
 					outHandle.write expLine
 				end
@@ -161,33 +153,26 @@ class SubsetShaper
 				inHandle.close
 				outHandle.close
 
-				if !$QUIET then
-					print "\b"
-				end
+				print "\b" unless $QUIET
 
 				PListDeduper.new "#{$TMPOUT}/" + 
 					subset.uniq.to_s +
 					"-" + name + "_#{@pass}"
 			end #while
 
-			if !$QUIET then
-				puts "#{@pass} passes"
-			end
+			puts "#{@pass} passes" unless $QUIET
 
 			File.rename("#{$TMPOUT}/#{subset.uniq.to_s}" +
 				    "-#{name}_#{@pass}",
 				"#{$TMPOUT}/#{subset.uniq.to_s}-" +
 				"#{name}_final")
 
-		end #for
+		end #.each
 	end
 
 	# Calculate the final packing list
 	def performEquation
-
-		if !$QUIET then
-			puts "performing equation..."
-		end
+		puts "performing equation..." unless $QUIET
 
 		@spinner.freq = 4
 		@spinner.rewind
@@ -218,15 +203,13 @@ class SubsetShaper
 			handle.close
 		end
 
-		if !$QUIET then
-			print "\b"
-		end
+		print "\b" unless $QUIET
 
 		@finalFiles = @includeFiles.subtract @excludeFiles
 		@finalMaps = @includeMaps.subtract @excludeMaps
 		@finalFormats = @includeFormats.subtract @excludeFormats
 
-		if !$QUIET then
+		unless $QUIET then
 			puts "includeFiles = #{@includeFiles.size}"
 			puts "excludeFiles = #{@excludeFiles.size}"
 			puts "includeMaps = #{@includeMaps.size}"
