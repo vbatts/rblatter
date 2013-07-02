@@ -191,7 +191,7 @@ class SubsetShaper
 				@excludeFormats.merge conf.formatHints
 			end
 
-			for line in handle do
+			handle.each do |line|
 				if inc then
 					@includeFiles << line
 				else
@@ -239,7 +239,7 @@ class SubsetShaper
 	# Write packing list to the output directory
 	def writePlist
 		File.open("#{$OUTDIR}/PLIST", "w") do |plist|
-			for line in @finalFiles do
+			@finalFiles.each do |line|
 				line = line.chomp
 
 				ok = true
@@ -261,7 +261,7 @@ class SubsetShaper
 
 			# add directory entries to satisfy openbsd pkgtools
 			if $ADD_DIRS then
-				for file in @dirList do
+				@dirList.each do |file|
 					plist.write $FILEPREFIX + file + "/\n"
 				end
 			end
@@ -305,9 +305,7 @@ class SubsetShaper
 			hints.puts shdr
 			hints.puts ""
 			
-			for map in @finalMaps do
-				hints.puts map
-			end
+			@finalMaps.each {|map| hints.puts map }
 
 			if @finalMaps.size == 0 then
 				hints.puts "(No map hints)"
@@ -318,14 +316,11 @@ class SubsetShaper
 			hints.puts shdr
 			hints.puts ""
 
-			for fmt in @finalFormats do 
-				hints.puts fmt
-			end
+			@finalFormats.each {|fmt| hints.puts fmt }
 
 			if @finalFormats.size == 0 then
 				hints.puts "(No format hints)"
 			end
-
 
 		end
 	end

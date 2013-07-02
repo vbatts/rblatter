@@ -53,7 +53,7 @@ class PkgFilter
 		blockType = nil # nil if not in block
 		name = "<undefined>"
 
-		for line in inBuf do
+		inBuf.each_line do |line|
 
 			if line =~ /^ / then
 
