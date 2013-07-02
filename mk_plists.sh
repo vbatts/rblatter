@@ -24,11 +24,11 @@ fi
 rm -rf sets
 mkdir -p sets
 
-#rm -rf $TMF
-#tar xf texlive-$VERSION-texmf.tar.xz
-#tar xf texlive-$VERSION-extra.tar.xz
+rm -rf $TMF
+tar xf texlive-$VERSION-texmf.tar.xz
+tar xf texlive-$VERSION-extra.tar.xz
 
-#mv texlive-$VERSION-extra/* $TMF && rmdir texlive-$VERSION-extra
+mv texlive-$VERSION-extra/* $TMF && rmdir texlive-$VERSION-extra
 cp $(pwd)/texlive.tlpdb $TMF/tlpkg
 
 echo "\nCalculating PLIST of texlive_texmf-minimal (tetex)..."
