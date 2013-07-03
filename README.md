@@ -8,6 +8,12 @@ subsets using the TeX Live TLPDB information.
 This utility is likely run in place during packaging of TeX Live,
 but can now be handle as a gem too.
 
+To install as a gem, run:
+
+  rake build
+
+and the gem package should be in the ./pkg directory
+
 ## Usage
 
 Ideally, you will have the tarballs of the texlive bits 
