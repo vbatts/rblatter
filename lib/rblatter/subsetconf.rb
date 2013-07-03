@@ -60,7 +60,7 @@ class SubsetConf
 		@alreadyExpanded = []
 		@mapHints = Set.new
 		@formatHints = Set.new
-		@uniq = SecureRandom.base64(10)
+		@uniq = SecureRandom.hex(10)
 	end
 
 	# Has this package already been expanded?
