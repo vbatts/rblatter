@@ -18,16 +18,16 @@
 #
 # Filters package contents based upon a subsetconf
 
-require "subsetconf"
-require "spinner"
+require "rblatter/subsetconf"
+require "rblatter/spinner"
+require "rblatter/pkgscanner"
 require "set"
-require "pkgscanner"
 
 class PkgFilter
 
 	# Create a new subset shaper and index the tlpdb database
-	def initialize()
-
+	def initialize(options = nil)
+    @options = options || {}
 		# tlpdb directives to remove
 		@@noInterest = 
 			["name", "category", "revision", "shortdesc",
@@ -39,7 +39,7 @@ class PkgFilter
 		@@leaveAlone = ["depend"]
 
 		@pass = 1
-		@@spinner = Spinner.new
+		@@spinner = Spinner.new @options
 	end
 
 	# Filter un-needed junk and un-needed doc/run/src/bin files

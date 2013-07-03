@@ -18,27 +18,26 @@
 #
 # Adds and subtracts texmf subset file lists in order to make new subsets.
 
-require "subsetconf"
-require "tlpdbindex"
-require "plistdeduper"
-require "spinner"
+require "rblatter/subsetconf"
+require "rblatter/tlpdbindex"
+require "rblatter/plistdeduper"
+require "rblatter/spinner"
 require "set"
-require "pkgscanner"
-require "pkgfilter"
+require "rblatter/pkgscanner"
+require "rblatter/pkgfilter"
 require "date"
 
-$TMPOUT = "tmp"
-
 class SubsetShaper
+  DEFAULT_TMPOUT = "tmp"
 
 	# Create a new subset shaper and index the tlpdb database
-	def initialize()
-
+	def initialize(options = nil)
+		@options = options || {}
 		@subsetConfigs = []
-		@pkgFilter = PkgFilter.new
-		@pkgScanner = PkgScanner.new
+		@pkgFilter = PkgFilter.new @options
+		@pkgScanner = PkgScanner.new @options
 		@pass = 1
-		@spinner = Spinner.new
+		@spinner = Spinner.new @options
 
 		@includeFiles = Set.new
 		@excludeFiles = Set.new
@@ -55,18 +54,21 @@ class SubsetShaper
 		@dirList = Set.new	# need to add dirs in plist
 		@subsetConfigs = []
 		@again = true # Will need another pass?
-		eqns = EqnParser.new $EQN
+		eqns = EqnParser.new @options[:eqn]
 		eqns.configs.each do |eqn|
 			@subsetConfigs << eqn
 		end
 
-		if File.exists? $TMPOUT then
-			puts "*error: '#{$TMPOUT}' exists"
+    @tmpout = @options[:tmpout] || DEFAULT_TMPOUT
+    @outdir = @options[:outdir]
+
+		if File.exists? @tmpout then
+			puts "*error: '#{@tmpout}' exists"
 			puts "It can probably be deleted"
 			exit 1
 		end
 
-		Dir.mkdir $TMPOUT
+		Dir.mkdir @tmpout
 
 		run
 	end
@@ -74,8 +76,8 @@ class SubsetShaper
 	private
 	# Start parsing and expanding subsets
 	def run
-		if File.exists? $OUTDIR then
-			$stderr.puts "*error: #{$OUTDIR} exists"
+		if File.exists? @outdir then
+			$stderr.puts "*error: #{@outdir} exists"
 			$stderr.puts "Remove/move, just do something!"
 			exit 1
 		end
@@ -84,7 +86,7 @@ class SubsetShaper
 		expandContents
 		performEquation
 
-		Dir.mkdir $OUTDIR
+		Dir.mkdir @outdir
 		writePlist
 		writeHints
 		clean
@@ -93,12 +95,12 @@ class SubsetShaper
 	# Create and populate subset outputs with toplevel depends
 	def writeInitialContents 
 
-		puts "setting up subsets..." unless $QUIET
+		puts "setting up subsets..." unless @options[:quiet]
 
 		@subsetConfigs.each do |subset|
 
 			# Create file
-			outFile = "#{$TMPOUT}/" + subset.uniq.to_s + "-" +
+			outFile = "#{@tmpout}/" + subset.uniq.to_s + "-" +
 				subset.subsetName + "_1"
 			if File.exists? outFile then
 				File.delete outFile
@@ -117,12 +119,12 @@ class SubsetShaper
 	# Expand dependencies in a subset output file
 	def expandContents
 
-		puts "expanding subsets..." unless $QUIET
+		puts "expanding subsets..." unless @options[:quiet]
 
 		@subsetConfigs.each do |subset|
 
 			name = subset.subsetName
-			puts "expanding #{name}" unless $QUIET
+			puts "expanding #{name}" unless @options[:quiet]
 			@pass = 1
 
 			@again = true 
@@ -130,17 +132,17 @@ class SubsetShaper
 
 				@again = false
 
-				print "pass #{@pass}: \n" unless $QUIET
+				print "pass #{@pass}: \n" unless @options[:quiet]
 
 				@spinner.rewind
 
 				# Open files
 				inHandle = File.new(
-					"#{$TMPOUT}/" + subset.uniq.to_s + 
+					"#{@tmpout}/" + subset.uniq.to_s + 
 					"-" + name + "_#{@pass}", "r")
 
 				outHandle = File.new(
-					"#{$TMPOUT}/" + subset.uniq.to_s +
+					"#{@tmpout}/" + subset.uniq.to_s +
 					 "-" + name + "_#{@pass.next}",
 					 "w+")
 
@@ -153,18 +155,18 @@ class SubsetShaper
 				inHandle.close
 				outHandle.close
 
-				print "\b" unless $QUIET
+				print "\b" unless @options[:quiet]
 
-				PListDeduper.new "#{$TMPOUT}/" + 
+				PListDeduper.new("#{@tmpout}/" + 
 					subset.uniq.to_s +
-					"-" + name + "_#{@pass}"
+					"-" + name + "_#{@pass}", @options)
 			end #while
 
-			puts "#{@pass} passes" unless $QUIET
+			puts "#{@pass} passes" unless @options[:quiet]
 
-			File.rename("#{$TMPOUT}/#{subset.uniq.to_s}" +
+			File.rename("#{@tmpout}/#{subset.uniq.to_s}" +
 				    "-#{name}_#{@pass}",
-				"#{$TMPOUT}/#{subset.uniq.to_s}-" +
+				"#{@tmpout}/#{subset.uniq.to_s}-" +
 				"#{name}_final")
 
 		end #.each
@@ -172,13 +174,13 @@ class SubsetShaper
 
 	# Calculate the final packing list
 	def performEquation
-		puts "performing equation..." unless $QUIET
+		puts "performing equation..." unless @options[:quiet]
 
 		@spinner.freq = 4
 		@spinner.rewind
 
 		for conf in @subsetConfigs do
-			handle = File.new "#{$TMPOUT}/" + conf.uniq.to_s +
+			handle = File.new "#{@tmpout}/" + conf.uniq.to_s +
 			 "-" + conf.subsetName + "_final", "r"
 
 			inc = conf.inclusive
@@ -203,13 +205,13 @@ class SubsetShaper
 			handle.close
 		end
 
-		print "\b" unless $QUIET
+		print "\b" unless @options[:quiet]
 
 		@finalFiles = @includeFiles.subtract @excludeFiles
 		@finalMaps = @includeMaps.subtract @excludeMaps
 		@finalFormats = @includeFormats.subtract @excludeFormats
 
-		unless $QUIET then
+		unless @options[:quiet] then
 			puts "includeFiles = #{@includeFiles.size}"
 			puts "excludeFiles = #{@excludeFiles.size}"
 			puts "includeMaps = #{@includeMaps.size}"
@@ -238,13 +240,13 @@ class SubsetShaper
 
 	# Write packing list to the output directory
 	def writePlist
-		File.open("#{$OUTDIR}/PLIST", "w") do |plist|
+		File.open("#{@outdir}/PLIST", "w") do |plist|
 			@finalFiles.each do |line|
 				line = line.chomp
 
 				ok = true
-				if $MISSING_FILES == false then
-					filetlm = $TLMASTER + "/" + line
+				if @options[:missing_files] == false then
+					filetlm = @options[:tlmaster] + "/" + line
 					if (File.exist?(filetlm.chomp) == false)  then
 						ok = false
 						puts "*warning: missing file ignored: " + filetlm
@@ -252,17 +254,19 @@ class SubsetShaper
 				end
 
 				if ok then
-					plist.write $FILEPREFIX + line + "\n"
-					if $ADD_DIRS then
+          # the .to_s is for in case the variable is nil
+					plist.write @options[:fileprefix].to_s + line + "\n"
+					if @options[:add_dirs] then
 						addDir(line)
 					end
 				end
 			end
 
 			# add directory entries to satisfy openbsd pkgtools
-			if $ADD_DIRS then
+			if @options[:add_dirs] then
 				@dirList.each do |file|
-					plist.write $FILEPREFIX + file + "/\n"
+          # the .to_s is for in case the variable is nil
+					plist.write @options[:fileprefix].to_s + file + "/\n"
 				end
 			end
 		end
@@ -274,10 +278,10 @@ class SubsetShaper
 		hdr = "=" * 72
 		shdr = "-" * 10
 
-		File.open("#{$OUTDIR}/HINTS", "w") do |hints|
+		File.open("#{@outdir}/HINTS", "w") do |hints|
 			hints.puts "Rblatter-#{$RBLATTER_V}"
 			hints.puts time
-			hints.puts $EQN
+			hints.puts @options[:eqn]
 			hints.puts hdr
 			hints.puts ""
 
@@ -327,15 +331,15 @@ class SubsetShaper
 
 	# Clean up the temp directory
 	def clean()
-		tmpdir = Dir.open($TMPOUT) do |dir|
+		tmpdir = Dir.open(@tmpout) do |dir|
 			dir.each do |file|
 				if file != "." and file != ".." then
-					File.unlink $TMPOUT + "/" + file
+					File.unlink(@tmpout + "/" + file)
 				end
 			end
 		end
 
-		Dir.rmdir $TMPOUT
+		Dir.rmdir @tmpout
 	end
 
 	# Expand a depend line

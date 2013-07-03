@@ -18,7 +18,7 @@
 #
 # Parse equation and put into data structure.
 
-require "subsetconf"
+require "rblatter/subsetconf"
 
 =begin
 Parse subset equations and bomb out if bad

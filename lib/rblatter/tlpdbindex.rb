@@ -24,7 +24,8 @@ class TlpdbIndex
 
 	# Make a new index based upon the tlpdb file '+file+'.
 	# * +file+ is a the tlpdb
-	def initialize(file)
+	def initialize(file, options = nil)
+    @options = options || {}
 		@index = {}	
 		@dbFile = file
 		makeIndex
@@ -40,10 +41,7 @@ class TlpdbIndex
 	private
 	# Parse and index the tlpdb file
 	def makeIndex()
-
-		if !$QUIET then
-			puts "Indexing TlpDB..."
-		end
+		puts "Indexing TlpDB..." unless @options[:quiet]
 
 		lineno = 1
 		for line in @dbFile do
@@ -53,8 +51,6 @@ class TlpdbIndex
 			lineno = lineno.next
 		end
 
-		if !$QUIET then
-			puts "Done. #{@index.size} packages"
-		end
+		puts "Done. #{@index.size} packages" unless @options[:quiet]
 	end
 end

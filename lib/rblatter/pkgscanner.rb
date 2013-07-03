@@ -18,21 +18,22 @@
 #
 # Takes packages from tlpdb
 
-require "tlpdbindex"
+require "rblatter/tlpdbindex"
 
 class PkgScanner
 
 	# Create a new subset shaper and index the tlpdb database
-	def initialize()
+	def initialize(options = nil)
+    @options = options || {}
 		# tlpdb directives to remove
-		@tlpdb = File.new $TLMASTER + "/tlpkg/texlive.tlpdb"
-		@dbIndex = TlpdbIndex.new @tlpdb
+		@tlpdb = File.new @options[:tlmaster] + "/tlpkg/texlive.tlpdb"
+		@dbIndex = TlpdbIndex.new @tlpdb, @options
 	end
 
 	# Return the contents of a single package
 	def getContents(indexName)
 
-		indexName.sub!(/ARCH/, $ARCH)
+		indexName.sub!(/ARCH/, @options[:arch])
 
 		seekLine = @dbIndex.index[indexName]
 

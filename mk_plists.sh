@@ -32,16 +32,16 @@ mv texlive-$VERSION-extra/* $TMF && rmdir texlive-$VERSION-extra
 cp $(pwd)/texlive.tlpdb $TMF/tlpkg
 
 echo "\nCalculating PLIST of texlive_texmf-minimal (tetex)..."
-./rblatter -d -v -n -t ${TMF} -p share/ -o sets/tetex +scheme-tetex,run
+./bin/rblatter -d -v -n -t ${TMF} -p share/ -o sets/tetex +scheme-tetex,run
 cat sets/tetex/PLIST | sort > sets/tetex/PLIST_final
 
 echo "\nCalculating PLIST of texlive_texmf-full..."
-./rblatter -d -v -n -t ${TMF} -p share/ -o sets/full \
+./bin/rblatter -d -v -n -t ${TMF} -p share/ -o sets/full \
 	+scheme-full,run:-scheme-tetex,doc,src,run
 cat sets/full/PLIST | sort > sets/full/PLIST_final
 
 echo "\nCalculating PLIST of texlive_texmf-docs..."
-./rblatter -d -v -n -t ${TMF} -p share/ -o sets/docs +scheme-full,doc
+./bin/rblatter -d -v -n -t ${TMF} -p share/ -o sets/docs +scheme-full,doc
 cat sets/docs/PLIST | sort > sets/docs/PLIST_final
 
 echo "\ndone - PLISTS in sets/"

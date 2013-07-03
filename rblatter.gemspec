@@ -6,10 +6,12 @@ require 'rblatter/version'
 Gem::Specification.new do |gem|
   gem.name          = "rblatter"
   gem.version       = Rblatter::VERSION
-  gem.authors       = ["Vincent Batts"]
-  gem.email         = ["vbatts@hashbangbash.com"]
-  gem.description   = %q{TODO: Write a gem description}
-  gem.summary       = %q{TODO: Write a gem summary}
+  gem.authors       = ["Edd Barrett"]
+  gem.email         = ["vext01@gmail.com"]
+  gem.description   = %q{ RBlatter is a ruby script which allows you to add and subtract TeXmf
+subsets using the TeX Live TLPDB information.}
+  gem.summary       = %q{ RBlatter is a ruby script which allows you to add and subtract TeXmf
+subsets using the TeX Live TLPDB information.}
   gem.homepage      = ""
 
   gem.files         = `git ls-files`.split($/)

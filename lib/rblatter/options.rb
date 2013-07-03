@@ -37,51 +37,51 @@ Available file types are 'run', 'src', 'bin' and 'doc'.
 EOM
 
 def parse_args(args)
-  options = {}
+  options = {
+      :arch           => "x86_64",
+      :missing_files  => true,
+      :add_dirs       => false,
+      :quiet          => true,
+  }
   opts = OptionParser.new do |opts|
     opts.banner = USAGE
     opts.on("--arch ARCH","-a","Specify the architecture to use for platform" +
             "specific files. Should specify always. " +
-            "Defaults to [#{$ARCH}]") do |o|
-      $ARCH = o
+            "Defaults to [#{options[:arch]}]") do |o|
       options[:arch] = o
     end
     opts.on("--dirs","-d","add directories to conatin files to packing list." +
             " used for openbsd packing lists ") do |o|
-      $ADD_DIRS = true
       options[:add_dirs] = true
     end
     opts.on("--no-missing-files","-n","do not put missing files in PLIST" +
             "(requires full texmf)") do |o|
-      $MISSING_FILES = false
       options[:missing_files] = false
     end
     opts.on("--outdir OUTDIR","-o","output directory") do |o|
-      $OUTDIR = o
       options[:outdir] = o
     end
     opts.on("--prefix PREFIX","-p") do |o|
-      $FILEPREFIX = o
       options[:fileprefix] = o
     end
     opts.on("--tlmaster TLMASTER","-t","root of texlive directory") do |o|
-      $TLMASTER = o
       options[:tlmaster] = o
     end
     opts.on("--verbose", "-v","do not show progress information.") do |o|
-      $QUIET = false
       options[:quiet] = false
     end
   end
+
+  # destructively parse the args
   opts.parse!(args)
 
-  required_args = [:outdir, :fileprefix, :tlmaster]
-  if (options.keys & required_args).length != required_args.length
-    $stderr.puts "ERROR: all required arguments were not provided"
-    miss = required_args - (options.keys & required_args)
-    $stderr.puts "   missing #{miss}"
-    puts opts
-    exit 2
-  end
+  # Yoink equation as whats left of command line
+  options[:eqn] = args.shift
+
+  # Checks
+  abort("*error: no --tlmaster | -t defined\n#{opts}") unless defined?(options[:tlmaster])
+  abort("*error: no --outdir | -o  defined\n#{opts}") unless defined?(options[:outdir])
+  abort("*error: no subset equation specified.\n#{opts}") if options[:eqn].nil?
+
   return options
 end

@@ -22,7 +22,8 @@ class Spinner
 
 	attr_writer :freq
 
-	def initialize()
+	def initialize(options = nil)
+    @options = options || {}
 		@@states = {
 			0 => "|",
 			1 => "/",
@@ -41,10 +42,7 @@ class Spinner
 
 	# One spinner "tick"
 	def spin()
-
-		if $QUIET then
-			return
-		end
+		return if @options[:quiet]
 
 		@clock = @clock.next
 
@@ -66,8 +64,6 @@ class Spinner
 	def rewind
 		@state = 0
 
-		if !$QUIET then
-			print " "
-		end
+		print " " unless @options[:quiet]
 	end
 end

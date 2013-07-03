@@ -22,46 +22,20 @@
 #
 
 $RBLATTER_V = "$OpenBSD: rblatter,v 1.2 2011/03/08 00:09:42 edd Exp $"
-$QUIET = true;
-$FILEPREFIX = ""
-$ARCH = "x86_64"
-$MISSING_FILES = true
-$ADD_DIRS = false
 
-path = File.dirname $0
-$: << path + "/lib"
+lib = File.expand_path('../../lib', __FILE__)
+$LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
-require "options"
-require "subsetshaper"
-require "eqnparser"
+require "rblatter/options"
+require "rblatter/subsetshaper"
+require "rblatter/eqnparser"
 
 # Parse args
 # this +options+ Hash is just for review at this point,
 # since the $GLOBALS are being used in the SubsetShaper
 options = parse_args(ARGV)
 
-# Checks
-if !defined? $TLMASTER then
-	puts "*error: no --tlmaster | -t defined";
-	exit 1
-end
-
-if !defined? $OUTDIR then
-	puts "*error: no --outdir | -o  defined";
-	exit 1
-end
-
-if ARGV.length != 1
-	puts "*error: no subset equation specified."
-	exit 0
-end
-
-# Yoink equation as whats left of command line
-$EQN = ARGV.shift
-
 # Go!
-shaper = SubsetShaper.new
+shaper = SubsetShaper.new(options)
 
-if !$QUIET then
-	puts "Job done!"
-end
+puts "Job done!" unless options[:quiet]

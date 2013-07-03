@@ -22,11 +22,10 @@ require "set"
 
 class PListDeduper
 
-	def initialize(file)
+	def initialize(file, options)
+    @options = options || {}
 
-		if !$QUIET  then
-			puts "removing duplicates from #{file}"
-		end
+		puts "removing duplicates from #{file}" unless @options[:quiet]
 
 		File.rename file, "#{file}.dups" 
 

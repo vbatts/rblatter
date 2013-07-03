@@ -19,9 +19,7 @@
 # Holds a subset configuration
 
 require "set"
-
-# A number used to keep temp files unique
-$SUBSET_UNIQ = 0
+require "securerandom"
 
 class SubsetConf
 
@@ -62,8 +60,7 @@ class SubsetConf
 		@alreadyExpanded = []
 		@mapHints = Set.new
 		@formatHints = Set.new
-		@uniq = $SUBSET_UNIQ
-		$SUBSET_UNIQ += 1
+		@uniq = SecureRandom.base64(10)
 	end
 
 	# Has this package already been expanded?
