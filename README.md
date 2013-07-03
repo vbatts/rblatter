@@ -1,29 +1,20 @@
 # Rblatter
 
-TODO: Write a gem description
+RBlatter is a ruby script which allows you to add and subtract TeXmf
+subsets using the TeX Live TLPDB information. 
 
 ## Installation
 
-Add this line to your application's Gemfile:
-
-    gem 'rblatter'
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
-
-    $ gem install rblatter
+This utility is likely run in place during packaging of TeX Live,
+but can now be handle as a gem too.
 
 ## Usage
 
-TODO: Write usage instructions here
+Ideally, you will have the tarballs of the texlive bits 
+(texlive-20130530-texmf.tar.xz and texlive-20130530-extra.tar.xz)
+and just run:
 
-## Contributing
+  ./mk_plist.sh
 
-1. Fork it
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create new Pull Request
+For usage of the rblatter command, read the mk_plist.sh and see the --help
+
